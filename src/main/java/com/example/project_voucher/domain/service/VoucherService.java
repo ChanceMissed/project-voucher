@@ -19,7 +19,7 @@ public class VoucherService {
 
     // 상품권 발행
     @Transactional
-    public String publish(final LocalDate validFrom, final LocalDate validTo, final Long amount){
+    public String publish(final LocalDate validFrom, final LocalDate validTo, final Long amount) {
         // 상품권 코드를 UUID 랜덤 16자로 만들어준다.
         final String code = UUID.randomUUID().toString().toUpperCase().replaceAll("-", "");
         final VoucherEntity voucherEntity = new VoucherEntity(code, VoucherStatusType.PUBLISH, validFrom, validTo, amount);
@@ -29,7 +29,15 @@ public class VoucherService {
 
     }
 
-    // 상품권 취소
+    // 상품권 사용 불가 처리
+    @Transactional
+    public void disable(String code) {
+        final VoucherEntity voucherEntity = voucherRepository.findByCode(code)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 상품권 입니다."));
+
+        voucherEntity.disable();
+    }
+
 
     // 상품권 사용
 }

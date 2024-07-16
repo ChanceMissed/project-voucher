@@ -11,6 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDate;
 
+import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
@@ -35,10 +36,33 @@ class VoucherServiceTest {
         final VoucherEntity voucherEntity = voucherRepository.findByCode(code).get();
 
         // then
-        Assertions.assertThat(voucherEntity).isNotNull();
-        Assertions.assertThat(voucherEntity.getCode()).isEqualTo(code);
-        Assertions.assertThat(voucherEntity.getStatus()).isEqualTo(VoucherStatusType.PUBLISH);
-        Assertions.assertThat(voucherEntity.getValidTo()).isEqualTo(validTo);
+        assertThat(voucherEntity).isNotNull();
+        assertThat(voucherEntity.getCode()).isEqualTo(code);
+        assertThat(voucherEntity.getStatus()).isEqualTo(VoucherStatusType.PUBLISH);
+        assertThat(voucherEntity.getValidTo()).isEqualTo(validTo);
+    }
 
+    @DisplayName("발행된 상품권은 사용 불가 처리 할 수 있다.")
+    @Test
+    public void test2(){
+        // given
+        final LocalDate validFrom = LocalDate.now();
+        final LocalDate validTo = LocalDate.now().plusDays(30);
+        final Long amount = 10000L;
+
+        final String code = voucherService.publish(validFrom, validTo, amount);
+
+        // when
+        voucherService.disable(code);
+        final VoucherEntity voucherEntity = voucherRepository.findByCode(code).get();
+
+        // then
+        assertThat(voucherEntity.getCode()).isEqualTo(code);
+        assertThat(voucherEntity.getStatus()).isEqualTo(VoucherStatusType.DISABLE);
+        assertThat(voucherEntity.getValidFrom()).isEqualTo(validFrom);
+        assertThat(voucherEntity.getValidTo()).isEqualTo(validTo);
+        assertThat(voucherEntity.getAmount()).isEqualTo(amount);
+
+        assertThat(voucherEntity.getUpdateAt()).isNotEqualTo(voucherEntity.getCreatedAt());
     }
 }

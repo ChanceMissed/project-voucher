@@ -46,4 +46,9 @@ public class VoucherEntity extends BaseEntity {
     public Long getAmount() {
         return amount;
     }
+
+    // 사용권을 사용 불가 처리
+    public void disable() {
+        this.status = VoucherStatusType.DISABLE;
+    }
 }
