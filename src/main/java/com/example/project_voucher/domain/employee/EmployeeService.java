@@ -30,6 +30,8 @@ public class EmployeeService {
             employeeEntity.getId(),
             employeeEntity.getName(),
             employeeEntity.getPosition(),
-            employeeEntity.getDepartment());
+            employeeEntity.getDepartment(),
+            employeeEntity.getCreatedAt(),
+            employeeEntity.getUpdateAt());
     }
 }

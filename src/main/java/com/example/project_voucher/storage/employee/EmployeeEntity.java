@@ -1,5 +1,6 @@
 package com.example.project_voucher.storage.employee;
 
+import com.example.project_voucher.storage.BaseEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -8,7 +9,7 @@ import jakarta.persistence.Table;
 
 @Table(name = "employee")
 @Entity
-public class EmployeeEntity {
+public class EmployeeEntity extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
