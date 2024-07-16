@@ -1,1 +1,3 @@
-spring.application.name=project-voucher
+spring.application.name: project-voucher
+
+server.port: 9090
