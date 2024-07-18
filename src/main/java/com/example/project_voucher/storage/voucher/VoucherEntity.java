@@ -53,6 +53,9 @@ public class VoucherEntity extends BaseEntity {
     }
 
     public void use() {
-        this.status = VoucherStatusType.USE;
+        if (this.status.equals(VoucherStatusType.PUBLISH)) {
+            this.status = VoucherStatusType.USE;
+        }
+        throw new IllegalStateException("사용 할 수 없는 상태의 상품권 입니다.");
     }
 }
