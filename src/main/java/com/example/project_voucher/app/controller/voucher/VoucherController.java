@@ -8,6 +8,7 @@ import com.example.project_voucher.app.controller.voucher.response.VoucherDisabl
 import com.example.project_voucher.app.controller.voucher.response.VoucherPublishResponse;
 import com.example.project_voucher.app.controller.voucher.response.VoucherPublishV2Response;
 import com.example.project_voucher.app.controller.voucher.response.VoucherUseV2Response;
+import com.example.project_voucher.common.dto.RequestContext;
 import com.example.project_voucher.domain.service.VoucherService;
 import java.time.LocalDate;
 import java.util.UUID;
@@ -49,8 +50,7 @@ public class VoucherController {
     @PostMapping("/api/v2/voucher")
     public VoucherPublishV2Response publish(@RequestBody final VoucherPublishV2Request request){
         String publishedVoucherCode = voucherService.publishV2(
-            request.requesterType(),
-            request.requesterId(),
+            new RequestContext(request.requesterType(), request.requesterId()),
             LocalDate.now(), LocalDate.now().plusDays(1830L), request.amountType());
 
         final String orderId = UUID.randomUUID().toString().toUpperCase().replaceAll("-", "");
@@ -62,7 +62,7 @@ public class VoucherController {
     public VoucherUseV2Response use(@RequestBody final VoucherUseV2Request request){
         final String orderId = UUID.randomUUID().toString().toUpperCase().replaceAll("-", "");
 
-        voucherService.useV2(request.requesterType(), request.requesterId(), request.code());
+        voucherService.useV2(new RequestContext(request.requesterType(), request.requesterId()), request.code());
         return new VoucherUseV2Response(orderId);
     }
 
@@ -71,7 +71,7 @@ public class VoucherController {
     public VoucherDisableV2Response disable(@RequestBody final VoucherDisableV2Request request) {
         final String orderId = UUID.randomUUID().toString().toUpperCase().replaceAll("-", "");
 
-        voucherService.disableV2(request.requesterType(), request.requesterId(), request.code());
+        voucherService.disableV2(new RequestContext(request.requesterType(), request.requesterId()), request.code());
         return new VoucherDisableV2Response(orderId);
     }
 }
