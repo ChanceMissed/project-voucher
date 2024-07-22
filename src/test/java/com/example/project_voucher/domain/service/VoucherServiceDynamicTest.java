@@ -36,7 +36,6 @@ public class VoucherServiceDynamicTest {
                     final LocalDate validFrom = LocalDate.now();
                     final LocalDate validTo = LocalDate.now().plusDays(30);
                     final VoucherAmountType amount = VoucherAmountType.KRW_30000;
-
                     //when
                     final String code = voucherService.publish(validFrom, validTo, amount);
                     codes.add(code);
