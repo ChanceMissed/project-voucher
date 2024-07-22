@@ -1,7 +1,7 @@
-package com.example.project_voucher.app.controller;
+package com.example.project_voucher.app.controller.employee;
 
-import com.example.project_voucher.app.controller.request.EmployeeCreateRequest;
-import com.example.project_voucher.app.controller.response.EmployeeResponse;
+import com.example.project_voucher.app.controller.employee.request.EmployeeCreateRequest;
+import com.example.project_voucher.app.controller.employee.response.EmployeeResponse;
 import com.example.project_voucher.domain.employee.EmployeeService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

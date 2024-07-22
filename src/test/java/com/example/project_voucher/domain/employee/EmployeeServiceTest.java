@@ -1,6 +1,6 @@
 package com.example.project_voucher.domain.employee;
 
-import com.example.project_voucher.app.controller.response.EmployeeResponse;
+import com.example.project_voucher.app.controller.employee.response.EmployeeResponse;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
