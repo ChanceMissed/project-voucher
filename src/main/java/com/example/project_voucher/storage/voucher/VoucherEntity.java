@@ -1,8 +1,11 @@
 package com.example.project_voucher.storage.voucher;
 
+import com.example.project_voucher.common.type.VoucherAmountType;
 import com.example.project_voucher.common.type.VoucherStatusType;
 import com.example.project_voucher.storage.BaseEntity;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
 
 import java.time.LocalDate;
@@ -14,12 +17,14 @@ public class VoucherEntity extends BaseEntity {
     private VoucherStatusType status; // 상품권상태 - Enum 클래스
     private LocalDate validFrom; // 유효기간 - 굳이 시간까지 보여줄 필요없어서
     private LocalDate validTo;
-    private Long amount;
+
+    @Enumerated(EnumType.STRING)
+    private VoucherAmountType amount;
 
     public VoucherEntity() {
     }
 
-    public VoucherEntity(String code, VoucherStatusType status, LocalDate validFrom, LocalDate validTo, Long amount) {
+    public VoucherEntity(String code, VoucherStatusType status, LocalDate validFrom, LocalDate validTo, VoucherAmountType amount) {
         this.code = code;
         this.status = status;
         this.validFrom = validFrom;
@@ -43,19 +48,22 @@ public class VoucherEntity extends BaseEntity {
         return validTo;
     }
 
-    public Long getAmount() {
+    public VoucherAmountType getAmount() {
         return amount;
     }
 
     // 사용권을 사용 불가 처리
     public void disable() {
+        if(!this.status.equals(VoucherStatusType.PUBLISH)){
+            throw new IllegalStateException("사용 불가 처리할 수 없는 상태의 상품권 입니다.");
+        }
         this.status = VoucherStatusType.DISABLE;
     }
 
     public void use() {
-        if (this.status.equals(VoucherStatusType.PUBLISH)) {
-            this.status = VoucherStatusType.USE;
+        if (!this.status.equals(VoucherStatusType.PUBLISH)) {
+            throw new IllegalStateException("사용 할 수 없는 상태의 상품권 입니다.");
         }
-        throw new IllegalStateException("사용 할 수 없는 상태의 상품권 입니다.");
+        this.status = VoucherStatusType.USE;
     }
 }

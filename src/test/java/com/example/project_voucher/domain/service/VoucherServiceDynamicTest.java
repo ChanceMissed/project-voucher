@@ -1,5 +1,6 @@
 package com.example.project_voucher.domain.service;
 
+import com.example.project_voucher.common.type.VoucherAmountType;
 import com.example.project_voucher.common.type.VoucherStatusType;
 import com.example.project_voucher.storage.voucher.VoucherEntity;
 import com.example.project_voucher.storage.voucher.VoucherRepository;
@@ -34,7 +35,7 @@ public class VoucherServiceDynamicTest {
                     // given
                     final LocalDate validFrom = LocalDate.now();
                     final LocalDate validTo = LocalDate.now().plusDays(30);
-                    final Long amount = 10000L;
+                    final VoucherAmountType amount = VoucherAmountType.KRW_30000;
 
                     //when
                     final String code = voucherService.publish(validFrom, validTo, amount);
@@ -68,7 +69,50 @@ public class VoucherServiceDynamicTest {
                     // then
                     final VoucherEntity voucherEntity = voucherRepository.findByCode(code).get();
                     assertThat(voucherEntity.getStatus()).isEqualTo(VoucherStatusType.DISABLE);
-                })
+                }),
+            dynamicTest("[1] 상품권을 사용 합니다.", () -> {
+                // given
+                final LocalDate validFrom = LocalDate.now();
+                final LocalDate validTo = LocalDate.now().plusDays(30);
+                final VoucherAmountType amount = VoucherAmountType.KRW_30000;
+
+
+                final String code = voucherService.publish(validFrom, validTo, amount);
+                codes.add(code);
+
+                // when
+                voucherService.use(code);
+
+                // then
+                final VoucherEntity voucherEntity = voucherRepository.findByCode(code).get();
+                assertThat(voucherEntity.getStatus()).isEqualTo(VoucherStatusType.USE);
+            }),
+            dynamicTest("[1] 사용한 상품권은 사용 불가 처리 할 수 없습니다.", () -> {
+                // given
+                final String code = codes.get(1);
+
+                // when
+                assertThatThrownBy(() -> voucherService.disable(code))
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessage("사용 불가 처리할 수 없는 상태의 상품권 입니다.");
+
+                // then
+                final VoucherEntity voucherEntity = voucherRepository.findByCode(code).get();
+                assertThat(voucherEntity.getStatus()).isEqualTo(VoucherStatusType.USE);
+            }),
+            dynamicTest("[1] 사용한 상품권은 또 사용할 수 없습니다.", () -> {
+                // given
+                final String code = codes.get(1);
+
+                // when
+                assertThatThrownBy(() -> voucherService.use(code))
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessage("사용 할 수 없는 상태의 상품권 입니다.");
+
+                // then
+                final VoucherEntity voucherEntity = voucherRepository.findByCode(code).get();
+                assertThat(voucherEntity.getStatus()).isEqualTo(VoucherStatusType.USE);
+            })
         );
     }
 }
