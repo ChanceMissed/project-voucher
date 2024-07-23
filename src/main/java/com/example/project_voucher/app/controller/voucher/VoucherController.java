@@ -3,10 +3,12 @@ package com.example.project_voucher.app.controller.voucher;
 import com.example.project_voucher.app.controller.voucher.request.VoucherDisableV2Request;
 import com.example.project_voucher.app.controller.voucher.request.VoucherPublishRequest;
 import com.example.project_voucher.app.controller.voucher.request.VoucherPublishV2Request;
+import com.example.project_voucher.app.controller.voucher.request.VoucherPublishV3Request;
 import com.example.project_voucher.app.controller.voucher.request.VoucherUseV2Request;
 import com.example.project_voucher.app.controller.voucher.response.VoucherDisableV2Response;
 import com.example.project_voucher.app.controller.voucher.response.VoucherPublishResponse;
 import com.example.project_voucher.app.controller.voucher.response.VoucherPublishV2Response;
+import com.example.project_voucher.app.controller.voucher.response.VoucherPublishV3Response;
 import com.example.project_voucher.app.controller.voucher.response.VoucherUseV2Response;
 import com.example.project_voucher.common.dto.RequestContext;
 import com.example.project_voucher.domain.service.VoucherService;
@@ -46,9 +48,9 @@ public class VoucherController {
         voucherService.disable(code);
     }
 
-    // 상품권 발행
+    // 상품권 발행 v2
     @PostMapping("/api/v2/voucher")
-    public VoucherPublishV2Response publish(@RequestBody final VoucherPublishV2Request request){
+    public VoucherPublishV2Response publishV2(@RequestBody final VoucherPublishV2Request request){
         String publishedVoucherCode = voucherService.publishV2(
             new RequestContext(request.requesterType(), request.requesterId()),
             LocalDate.now(), LocalDate.now().plusDays(1830L), request.amountType());
@@ -57,21 +59,31 @@ public class VoucherController {
         return new VoucherPublishV2Response(orderId, publishedVoucherCode);
     }
 
-    // 상품권 사용
+    // 상품권 사용 v2
     @PutMapping("/api/v2/voucher/use")
-    public VoucherUseV2Response use(@RequestBody final VoucherUseV2Request request){
+    public VoucherUseV2Response useV2(@RequestBody final VoucherUseV2Request request){
         final String orderId = UUID.randomUUID().toString().toUpperCase().replaceAll("-", "");
 
         voucherService.useV2(new RequestContext(request.requesterType(), request.requesterId()), request.code());
         return new VoucherUseV2Response(orderId);
     }
 
-    // 상품권 폐기
+    // 상품권 폐기 v2
     @PutMapping("/api/v2/voucher/disable")
-    public VoucherDisableV2Response disable(@RequestBody final VoucherDisableV2Request request) {
+    public VoucherDisableV2Response disableV2(@RequestBody final VoucherDisableV2Request request) {
         final String orderId = UUID.randomUUID().toString().toUpperCase().replaceAll("-", "");
 
         voucherService.disableV2(new RequestContext(request.requesterType(), request.requesterId()), request.code());
         return new VoucherDisableV2Response(orderId);
+    }
+
+    // 상품권 발행 v3
+    @PostMapping("/api/v3/voucher")
+    public VoucherPublishV3Response publishV3(@RequestBody final VoucherPublishV3Request request){
+        String publishedVoucherCode = voucherService.publishV3(
+            new RequestContext(request.requesterType(), request.requesterId()), request.contractCode(), request.amountType());
+
+        final String orderId = UUID.randomUUID().toString().toUpperCase().replaceAll("-", "");
+        return new VoucherPublishV3Response(orderId, publishedVoucherCode);
     }
 }

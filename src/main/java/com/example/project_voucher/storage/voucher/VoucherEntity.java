@@ -25,17 +25,25 @@ public class VoucherEntity extends BaseEntity {
     @OneToMany(cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
     @JoinColumn(name = "voucher_id")
     private List<VoucherHistoryEntity> histories = new ArrayList<>();
+
+    @ManyToOne(cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
+    @JoinColumn(name = "contract_id")
+    private ContractEntity contract; // 상품권들은 하나의 계약으로 만들어져 있음
+
+
     public VoucherEntity() {
     }
 
-    public VoucherEntity(String code, VoucherStatusType status, LocalDate validFrom, LocalDate validTo, VoucherAmountType amount, VoucherHistoryEntity voucherHistoryEntity) {
+//    public VoucherEntity(String code, VoucherStatusType status, LocalDate validFrom, LocalDate validTo, VoucherAmountType amount, VoucherHistoryEntity voucherHistoryEntity) {
+    public VoucherEntity(String code, VoucherStatusType status, VoucherAmountType amount, VoucherHistoryEntity voucherHistoryEntity, ContractEntity contractEntity) {
         this.code = code;
         this.status = status;
-        this.validFrom = validFrom;
-        this.validTo = validTo;
+        this.validFrom = LocalDate.now();
+        this.validTo = LocalDate.now().plusDays(contractEntity.getVoucherValidPeriodDayCount());
         this.amount = amount;
 
         this.histories.add(voucherHistoryEntity); // 발행시 기록 추가
+        this.contract = contractEntity;
     }
 
     public String getCode() {
