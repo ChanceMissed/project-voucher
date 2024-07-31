@@ -70,6 +70,14 @@ public class VoucherEntity extends BaseEntity {
         return histories;
     }
 
+    public VoucherHistoryEntity publishHistory(){
+        return histories.stream()
+            .filter(voucherHistoryEntity -> voucherHistoryEntity.getStatus()
+                .equals(VoucherStatusType.PUBLISH))
+            .findFirst()
+            .orElseThrow(() -> new IllegalArgumentException("발행 이력이 존재하지 않습니다."));
+    }
+
     // 사용권을 사용 불가 처리
     public void disable(final VoucherHistoryEntity voucherHistoryEntity) {
         if(!this.status.equals(VoucherStatusType.PUBLISH)){

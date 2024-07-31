@@ -38,6 +38,11 @@ public class ContractEntity extends BaseEntity {
         this.voucherValidPeriodDayCount = voucherValidPeriodDayCount;
     }
 
+
+    public Boolean isExpired(){
+        return LocalDate.now().isAfter(validTo);
+    }
+
     public String getCode() {
         return code;
     }

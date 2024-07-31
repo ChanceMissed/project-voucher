@@ -3,6 +3,8 @@ package com.example.project_voucher.domain.service;
 import com.example.project_voucher.common.dto.RequestContext;
 import com.example.project_voucher.common.type.VoucherAmountType;
 import com.example.project_voucher.common.type.VoucherStatusType;
+import com.example.project_voucher.domain.service.validator.VoucherDisableValidator;
+import com.example.project_voucher.domain.service.validator.VoucherPublishValidator;
 import com.example.project_voucher.storage.voucher.ContractEntity;
 import com.example.project_voucher.storage.voucher.ContractRepository;
 import com.example.project_voucher.storage.voucher.VoucherEntity;
@@ -18,9 +20,15 @@ public class VoucherService {
     private final VoucherRepository voucherRepository;
     private final ContractRepository contractRepository;
 
-    public VoucherService(VoucherRepository voucherRepository, ContractRepository contractRepository) {
+    // 검증 Bean 클래스
+    private final VoucherPublishValidator voucherPublishValidator;
+    private final VoucherDisableValidator voucherDisableValidator;
+
+    public VoucherService(VoucherRepository voucherRepository, ContractRepository contractRepository, VoucherPublishValidator voucherPublishValidator, VoucherDisableValidator voucherDisableValidator) {
         this.voucherRepository = voucherRepository;
         this.contractRepository = contractRepository;
+        this.voucherPublishValidator = voucherPublishValidator;
+        this.voucherDisableValidator = voucherDisableValidator;
     }
 
 
@@ -100,9 +108,28 @@ public class VoucherService {
         final String orderId = UUID.randomUUID().toString().toUpperCase().replaceAll("-", "");
 
         final ContractEntity contractEntity = contractRepository.findByCode(contractCode).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 계약입니다."));
+        
+        // 감증 클래스로 로직 빼기
+        voucherPublishValidator.validate(contractEntity);
+
         final VoucherHistoryEntity voucherHistoryEntity = new VoucherHistoryEntity(orderId, requestContext.requesterType(), requestContext.requesterId(), VoucherStatusType.PUBLISH, "테스트 발행");
         final VoucherEntity voucherEntity = new VoucherEntity(code, VoucherStatusType.PUBLISH, amount, voucherHistoryEntity, contractEntity);
 
         return voucherRepository.save(voucherEntity).getCode();
+    }
+
+    // 상품권 사용 불가 처리 V2
+    @Transactional
+    public void disableV3(final RequestContext requestContext, final String code) {
+        final String orderId = UUID.randomUUID().toString().toUpperCase().replaceAll("-", "");
+
+        final VoucherEntity voucherEntity = voucherRepository.findByCode(code)
+            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 상품권 입니다."));
+
+        voucherDisableValidator.validate(voucherEntity, requestContext);
+
+        final VoucherHistoryEntity voucherHistoryEntity = new VoucherHistoryEntity(orderId, requestContext.requesterType(), requestContext.requesterId(), VoucherStatusType.DISABLE, "테스트 사용 불가");
+
+        voucherEntity.disable(voucherHistoryEntity);
     }
 }
